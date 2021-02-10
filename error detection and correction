@@ -1,0 +1,36 @@
+from qiskit import *
+def switch(circuit, i, qubit, reg):
+    if i==0:
+        circuit.i(reg[qubit])
+    elif i==1:
+        circuit.x(reg[qubit])
+    elif i==2:
+        circuit.z(reg[qubit])
+    
+cq=QuantumRegister(2,'code_qubit')
+lq=QuantumRegister(1,'link_qubit')
+cb=ClassicalRegister(2,'code_bit')
+rlb=ClassicalRegister(2,'round_link_bit')
+#qc={}
+#print(list(range(3)))
+for i in list(range(3)):
+    for j in list(range(3)):
+ #       print(i,j)
+        qc=QuantumCircuit(cq,lq,cb,rlb)
+        qc.h(cq[0])
+        qc.cx(cq[0],cq[1])
+        switch(qc, i, 0, cq)
+        switch(qc, j, 1, cq)
+        qc.barrier()
+        qc.cx([cq[0],cq[1]],[lq[0],lq[0]])
+        qc.measure(lq[0],rlb[0])
+        qc.x(cq[1]).c_if(rlb,1)
+        qc.barrier()
+        qc.reset(lq[0])
+        qc.cx([cq[0],cq[1]],[lq[0],lq[0]])
+        qc.measure(lq[0],rlb[1])
+        qc.measure(cq,cb)
+        print('\n\t\t\t========= circuit[',i,'][',j,']=========\n')
+        print(qc)
+        job = execute( qc, Aer.get_backend('qasm_simulator') )
+        print(job.result().get_counts(qc))
