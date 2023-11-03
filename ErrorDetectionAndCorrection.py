@@ -4,9 +4,11 @@
 # The code considers all the 6 combinations and performs correction in each of the cases, if needed.
 # The code is also scalable, i.e. it can be extended to more number of code bits.
 
-from qiskit import *
+from qiskit import (Aer, ClassicalRegister, QuantumCircuit, QuantumRegister,
+                    execute)
 
-def switch(circuit, i, qubit, reg):
+
+def switch(circuit: QuantumCircuit, i: int, qubit: int, reg: QuantumRegister) -> None:
     """Depending on the integer value passed, applies a gate to the reg passed as a parameter to the function.
     
     Args:
@@ -22,16 +24,16 @@ def switch(circuit, i, qubit, reg):
     elif i==2:
         circuit.z(reg[qubit])
     
-cq=QuantumRegister(2,'code_qubit')
-lq=QuantumRegister(1,'link_qubit')
-cb=ClassicalRegister(2,'code_bit')
-rlb=ClassicalRegister(2,'round_link_bit')
+cq: QuantumRegister = QuantumRegister(2,'code_qubit')
+lq: QuantumRegister = QuantumRegister(1,'link_qubit')
+cb: ClassicalRegister = ClassicalRegister(2,'code_bit')
+rlb: ClassicalRegister = ClassicalRegister(2,'round_link_bit')
 
 # This nested loop creates the 6 different combinations of the error gates applied to the two code qubits
 
 for i in list(range(3)):                        # The first loop handles the error gates applied to the first code qubit
     for j in list(range(3)):                    # The second loop handles the error gates applied to the second code qubit
-        qc=QuantumCircuit(cq,lq,cb,rlb)
+        qc: QuantumCircuit = QuantumCircuit(cq,lq,cb,rlb)
         qc.h(cq[0])                             # Creation of the Bell pair
         qc.cx(cq[0],cq[1])
         switch(qc, i, 0, cq)                    # Applies gate to the first code qubit
